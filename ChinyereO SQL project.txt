@@ -1,0 +1,130 @@
+
+SQL Project 2
+
+This project aims to unravel a murder case using available witnesses account of events that happened. 
+
+SELECT * FROM crime_scene_report
+
+select description, type from crime_scene_report
+where city = "SQL City"
+and date = 20180115
+and type = "murder"
+
+"Security footage shows that there were 2 witnesses. The first witness lives at the last house on ""Northwestern Dr"". 
+The second witness, named Annabel, lives somewhere on ""Franklin Ave""."	murder
+
+SELECT 
+    P.name, P.address_street_name, FEC.person_id, 
+    FEC.date,  FEC.event_name
+FROM 
+   person P
+JOIN 
+   facebook_event_checkin FEC
+ON 
+  p.id = FEC.person_id
+WHERE 
+  address_street_name IN ("Northwestern Dr", "Franklin Ave") 
+AND date = 20180115;
+
+"Morty Schapiro"	"Northwestern Dr"	"14887"	"20180115"	"The Funky Grooves Tour"
+"Annabel Miller"	"Franklin Ave"	"16371"	"20180115"	"The Funky Grooves Tour"
+
+The two witnesses were Morty Schapiro and Annabel Miller and facebook event was The funky grooves tour
+
+select transcript from interview I
+join person P
+on I.person_id = P.id
+where person_id in (14887, 16371)
+
+"I heard a gunshot and then saw a man run out. He had a ""Get Fit Now Gym"" bag. The membership number on the bag started with ""48Z"". 
+Only gold members have those bags. The man got into a car with a plate that included ""H42W""."
+"I saw the murder happen, and I recognized the killer from my gym when I was working out last week on January the 9th."
+
+Finding from the first witness's trancript
+
+select p.id, p.name, d.id, d.age, d.gender, d.plate_number, g.membership_status, g.id 
+from drivers_license d
+join person p
+on d.id = p.license_id
+join get_fit_now_member g
+on g.person_id = p.id
+where g.id like "48Z%"
+and d.plate_number like "%H42W%"
+and g.membership_status = "gold"
+
+67318	Jeremy Bowers	423327	30	male	0H42W2	gold	48Z55
+
+Follwing up on the second witness's transcript
+
+select GC.membership_id, GC.check_in_date, GM.name, GM.id
+from get_fit_now_check_in GC
+join get_fit_now_member GM
+on GC. membership_id = GM.id
+WHERE check_in_date = 20180109
+
+"X0643"	"20180109"	"Shondra Ledlow"	"X0643"
+"UK1F2"	"20180109"	"Zackary Cabotage"	"UK1F2"
+"XTE42"	"20180109"	"Sarita Bartosh"	"XTE42"
+"1AE2H"	"20180109"	"Adriane Pelligra"	"1AE2H"
+"6LSTG"	"20180109"	"Burton Grippe"	"6LSTG"
+"7MWHJ"	"20180109"	"Blossom Crescenzo"	"7MWHJ"
+"GE5Q8"	"20180109"	"Carmen Dimick"	"GE5Q8"
+"48Z7A"	"20180109"	"Joe Germuska"	"48Z7A"
+"48Z55"	"20180109"	"Jeremy Bowers"	"48Z55"
+"90081"	"20180109"	"Annabel Miller"	"90081"
+
+Annabel Miller and Jeremy Bowers checked in on 9th January, 2018.
+
+The murder was committed by Jeremy Bowers, according to the two witnesses.
+
+I went further to confirm if Jeremy attended the facebook event "Funky grooves tour"
+
+select f.person_id, f.event_name, f.date, p.name, p.id 
+from facebook_event_checkin f
+join person P
+on p.id = f.person_id
+where p.name = "Jeremy Bowers"
+The code returned the following result
+
+"67318"	"The Funky Grooves Tour"	"20180115"	"Jeremy Bowers"	"67318"
+"67318"	"SQL Symphony Concert"	"20171206"	"Jeremy Bowers"	"67318"
+
+The above result confirms that Jeremy was present in the facebook event of 20180115.
+
+I went on to see if there was an interview with Jeremy in order to know the motive of the murder.
+
+select person_id, transcript from interview
+where person_id = 67318
+
+The above code returned the following result:
+
+"67318"	"I was hired by a woman with a lot of money. I don't know her name but I know she's around 5'5"" (65"") or 5'7"" (67""). She has red hair and she drives a Tesla Model S. I know that she attended the SQL Symphony Concert 3 times in December 2017."
+
+Following Jeremy Bowers confession, I went on to look up the information on the woman who allegedly hired him to commit the murder.
+
+select d.height, d.hair_color, d.gender, d.car_make, f.event_name, p.name, f.date
+from drivers_license d
+join person p
+on   d.id = p.license_id
+join facebook_event_checkin f
+on f.person_id = p.id
+where event_name = "SQL Symphony Concert" 
+AND (f.date BETWEEN 20171201 AND 20171231)
+and d.hair_color = "red"
+and d.car_make = "Tesla"
+
+The above search returned the following information:
+"66"	"red"	"female"	"Tesla"	"SQL Symphony Concert"	"Miranda Priestly"	"20171206"
+"66"	"red"	"female"	"Tesla"	"SQL Symphony Concert"	"Miranda Priestly"	"20171212"
+"66"	"red"	"female"	"Tesla"	"SQL Symphony Concert"	"Miranda Priestly"	"20171229"
+  
+Evidence shows that Miranda Priestly hired Jeremy Bowers to commit the murder.
+
+
+
+
+
+
+
+
+
